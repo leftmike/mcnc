@@ -1,29 +1,17 @@
 package main
 
+//go:generate statik -src=app/build -p appdata
+
 import (
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-)
 
-const (
-	indexHTML = `
-<!DOCTYPE HTML>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>mCNC</title>
-</head>
-<body>
-Use ./mcnc --files app/build<p>
-Need to include app/build in mcnc and serve it from there
-</body>
-</html>
-`
+	statikfs "github.com/rakyll/statik/fs"
+
+	_ "github.com/leftmike/mcnc/appdata"
 )
 
 var (
@@ -31,52 +19,62 @@ var (
 		"directory for files rather than builtin ones (development)")
 )
 
-func fileHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("url path: %s\n", req.URL.Path)
+type fileHandler struct {
+	handler http.Handler
+	fs      http.FileSystem
+}
 
-	// XXX: need to set cache control
-	// Cache-Control: max-age=31536000 for your build/static assets
-	// Cache-Control: no-cache for everything else
+func (fh fileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	log.Printf("url path: %s\n", req.URL.Path)
 
 	if req.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	if *filesDir != "" {
-		n := filepath.Join(*filesDir, req.URL.Path)
-		log.Printf("file: %s\n", n)
-
-		f, err := os.Open(n)
+	if req.URL.Path != "/" {
+		f, err := fh.fs.Open(req.URL.Path)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Error: os.Open(%q): %s", n, err)
-			return
-		}
-		defer f.Close()
-
-		_, err = io.Copy(w, f)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Error: io.Copy(%q): %s", n, err)
-			return
-		}
-	} else {
-		if req.URL.Path == "/" || req.URL.Path == "/index.html" {
-			_, err := io.WriteString(w, indexHTML)
-			if err != nil {
+			if os.IsNotExist(err) {
+				http.NotFound(w, req)
+				return
+			} else {
 				w.WriteHeader(http.StatusInternalServerError)
-				fmt.Fprintf(w, "Error: io.WriteString(%q): %s", req.URL.Path, err)
+				fmt.Fprintf(w, "Error: Open(%q): %s", req.URL.Path, err)
 				return
 			}
 		} else {
-			http.NotFound(w, req)
-			return
+			fi, err := f.Stat()
+			f.Close()
+			if err != nil || fi.IsDir() {
+				http.NotFound(w, req)
+				return
+			}
 		}
-
 	}
+
+	fh.handler.ServeHTTP(w, req)
+
+	// XXX
+	// Cache-Control: max-age=31536000 for your build/static assets
+	// Cache-Control: no-cache for everything else
 }
 
-func init() {
-	http.HandleFunc("/", fileHandler)
+func setupFileServer() {
+	var fs http.FileSystem
+
+	if *filesDir != "" {
+		fs = http.Dir(*filesDir)
+	} else {
+		var err error
+		fs, err = statikfs.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	http.Handle("/", fileHandler{
+		handler: http.FileServer(fs),
+		fs:      fs,
+	})
 }

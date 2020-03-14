@@ -2,7 +2,6 @@ package main
 
 /*
 
-- include app/build/* in the executable and serve from there; see go-bindata
 - set cache control
 
 */
@@ -19,5 +18,7 @@ func main() {
 	fmt.Println("mCNC")
 
 	flag.Parse()
+	setupFileServer()
+
 	log.Fatal(http.ListenAndServe("localhost:8241", nil))
 }
