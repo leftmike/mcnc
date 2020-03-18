@@ -9,40 +9,38 @@ export interface Props {
 }
 
 export const Positions: React.FunctionComponent<Props> = props => {
+    const style = { border: "1px solid gray", padding: 3 };
     return (
-        <table>
+        <table style={{ borderCollapse: "collapse", marginLeft: 2 }}>
             <tr>
-                <td colSpan={3}>Axes</td>
+                <td style={style}>Axis</td>
+                <td style={style}>Machine Position</td>
+                <td style={style}>Work Position</td>
             </tr>
             <tr>
-                <td>Axis</td>
-                <td>Machine Position</td>
-                <td>Work Position</td>
-            </tr>
-            <tr>
-                <td>X</td>
-                <td>
+                <td style={{ textAlign: "center", ...style }}>X</td>
+                <td style={style}>
                     <Position units={props.units} value={props.machineX} />
                 </td>
-                <td>
+                <td style={style}>
                     <Position units={props.units} value={0.0} />
                 </td>
             </tr>
             <tr>
-                <td>Y</td>
-                <td>
+                <td style={{ textAlign: "center", ...style }}>Y</td>
+                <td style={style}>
                     <Position units={props.units} value={props.machineY} />
                 </td>
-                <td>
+                <td style={style}>
                     <Position units={props.units} value={0.0} />
                 </td>
             </tr>
             <tr>
-                <td>Z</td>
-                <td>
+                <td style={{ textAlign: "center", ...style }}>Z</td>
+                <td style={style}>
                     <Position units={props.units} value={props.machineZ} />
                 </td>
-                <td>
+                <td style={style}>
                     <Position units={props.units} value={0.0} />
                 </td>
             </tr>

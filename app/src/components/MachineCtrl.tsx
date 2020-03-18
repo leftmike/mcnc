@@ -9,7 +9,14 @@ export interface Props extends AxesProps {}
 export const MachineCtrl: React.FunctionComponent<Props> = props => {
     const [opened, setOpened] = useState(true);
     return (
-        <div>
+        <div
+            style={{
+                height: "100%",
+                borderLeftStyle: "solid",
+                borderLeftColor: "gray",
+                borderLeftWidth: 1
+            }}
+        >
             <Stack>
                 <IconButton
                     iconProps={{ iconName: opened ? "ChevronRightSmall" : "ChevronLeftSmall" }}

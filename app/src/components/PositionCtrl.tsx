@@ -1,10 +1,26 @@
 import React, { useState } from "react";
+import { ChoiceGroup, IChoiceGroupOption } from "office-ui-fabric-react/lib/ChoiceGroup";
 import { ComboBox, IComboBoxOption } from "office-ui-fabric-react/lib/index";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
+
+const unitsOptions: IChoiceGroupOption[] = [
+    { key: "mm", text: "mm" },
+    { key: "in", text: "in" }
+];
+
+/*
+export const ChoiceGroupBasicExample: React.FunctionComponent = () => {
+};
+
+function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {
+  console.dir(option);
+}
+*/
 
 export interface Props {
     units: string;
     onDeltaClick: (deltaX: number, deltaY: number, deltaZ: number) => void;
+    onUnitsChange: (units: string) => void;
 }
 
 const mmStepDefault = "1";
@@ -34,14 +50,19 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
         stepDefault = inStepDefault;
     }
 
-    const [step, setStep] = useState(Number(stepDefault));
-    // change step back to default when changing units
+    let [step, setStep] = useState(Number(stepDefault));
 
+    if (stepOptions.findIndex(val => Number(val.key) === step) === -1) {
+        step = Number(stepDefault);
+        setStep(step);
+    }
+
+    const style = { border: "1px solid gray", padding: 3 };
     return (
         <div>
             <table>
                 <tr>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(-90deg)" } }}
@@ -49,21 +70,21 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             onClick={() => props.onDeltaClick(-1 * step, 1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Up" }}
                             title="+Y"
                             onClick={() => props.onDeltaClick(0, 1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "ArrowUpRight" }}
                             title="+X +Y"
                             onClick={() => props.onDeltaClick(1 * step, 1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Up" }}
                             title="+Z"
@@ -72,25 +93,25 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Back" }}
                             title="-X"
                             onClick={() => props.onDeltaClick(-1 * step, 0, 0)}
                         />
                     </td>
-                    <td style={{ textAlign: "center" }}>X Y</td>
-                    <td>
+                    <td style={{ textAlign: "center", ...style }}>XY</td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Forward" }}
                             title="+X"
                             onClick={() => props.onDeltaClick(1 * step, 0, 0)}
                         />
                     </td>
-                    <td style={{ textAlign: "center" }}>Z</td>
+                    <td style={{ textAlign: "center", ...style }}>Z</td>
                 </tr>
                 <tr>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(180deg)" } }}
@@ -98,14 +119,14 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             onClick={() => props.onDeltaClick(-1 * step, -1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Down" }}
                             title="-Y"
                             onClick={() => props.onDeltaClick(0, -1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(90deg)" } }}
@@ -113,7 +134,7 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             onClick={() => props.onDeltaClick(1 * step, -1 * step, 0)}
                         />
                     </td>
-                    <td>
+                    <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Down" }}
                             title="-Z"
@@ -122,7 +143,19 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                     </td>
                 </tr>
             </table>
+            <ChoiceGroup
+                style={{ marginLeft: 2 }}
+                selectedKey={props.units}
+                options={unitsOptions}
+                label="Units"
+                onChange={(_event, option) => {
+                    if (option) {
+                        props.onUnitsChange(option.key);
+                    }
+                }}
+            />
             <ComboBox
+                style={{ marginLeft: 2 }}
                 options={stepOptions}
                 label={"Delta Step (" + props.units + ")"}
                 text={String(step)}
