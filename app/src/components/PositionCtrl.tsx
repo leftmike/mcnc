@@ -144,7 +144,6 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                 </tr>
             </table>
             <ChoiceGroup
-                style={{ marginLeft: 2 }}
                 selectedKey={props.units}
                 options={unitsOptions}
                 label="Units"
@@ -153,9 +152,9 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                         props.onUnitsChange(option.key);
                     }
                 }}
+                style={{ margin: 2 }}
             />
             <ComboBox
-                style={{ marginLeft: 2 }}
                 options={stepOptions}
                 label={"Delta Step (" + props.units + ")"}
                 text={String(step)}
@@ -164,6 +163,7 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                         setStep(Number(option.key));
                     }
                 }}
+                style={{ margin: 2 }}
             />
         </div>
     );

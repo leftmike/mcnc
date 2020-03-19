@@ -23,8 +23,8 @@ export const MachineCtrl: React.FunctionComponent<Props> = props => {
                     title={opened ? "Close" : "Open"}
                     onClick={() => setOpened(!opened)}
                 />
-                {opened ? <Axes {...props} /> : <div></div>}
-                {opened ? <Gcode /> : <div></div>}
+                {opened && <Axes {...props} />}
+                {opened && <Gcode />}
             </Stack>
         </div>
     );

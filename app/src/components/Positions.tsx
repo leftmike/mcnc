@@ -11,7 +11,7 @@ export interface Props {
 export const Positions: React.FunctionComponent<Props> = props => {
     const style = { border: "1px solid gray", padding: 3 };
     return (
-        <table style={{ borderCollapse: "collapse", marginLeft: 2 }}>
+        <table style={{ borderCollapse: "collapse", margin: 2 }}>
             <tr>
                 <td style={style}>Axis</td>
                 <td style={style}>Machine Position</td>

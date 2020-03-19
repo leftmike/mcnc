@@ -15,7 +15,7 @@ export const Axes: React.FunctionComponent<Props> = props => {
                 margin: 10
             }}
         >
-            <div style={{ marginLeft: 2, marginBottom: 10 }}>Axes</div>
+            <div style={{ margin: 2 }}>Axes</div>
             <Positions {...props} />
             <PositionCtrl {...props} />
         </div>
