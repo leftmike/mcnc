@@ -2,6 +2,7 @@ import { initializeIcons } from "@uifabric/icons";
 import React, { useState } from "react";
 import { Stack } from "office-ui-fabric-react";
 
+import { Coord } from "./util/Coord";
 import { CtrlWebSocket, MsgPosition } from "./util/CtrlWebSocket";
 import { MachineCtrl } from "./components/MachineCtrl";
 import { Workspace } from "./components/Workspace";
@@ -10,31 +11,22 @@ import { Workspace } from "./components/Workspace";
 CtrlWebSocket.init("ws://localhost:8241/control");
 
 export const App: React.FunctionComponent = () => {
-    const [machineX, setMachineX] = useState(0.0);
-    const [machineY, setMachineY] = useState(0.0);
-    const [machineZ, setMachineZ] = useState(0.0);
+    const [machinePos, setMachinePos] = useState(new Coord(0.0, 0.0, 0.0));
     const [units, setUnits] = useState("in");
 
-    const onUnitsChange = function(u: string) {
+    const onUnitsChange = (u: string) => {
         if (u !== units) {
             setUnits(u);
             if (u === "mm") {
-                setMachineX(machineX * 25.4);
-                setMachineY(machineY * 25.4);
-                setMachineZ(machineZ * 25.4);
+                setMachinePos(machinePos.map(n => n * 25.4));
             } else {
-                setMachineX(machineX / 25.4);
-                setMachineY(machineY / 25.4);
-                setMachineZ(machineZ / 25.4);
+                setMachinePos(machinePos.map(n => n / 25.4));
             }
         }
     };
 
-    // public onMsgPosition(handler: (msg: MsgPosition) => void)
-    const onMsgPosition = function(msg: MsgPosition) {
-        setMachineX(msg.MachineX);
-        setMachineY(msg.MachineY);
-        setMachineZ(msg.MachineZ);
+    const onMsgPosition = (msg: MsgPosition) => {
+        setMachinePos(new Coord(msg.MachineX, msg.MachineY, msg.MachineZ));
     };
 
     CtrlWebSocket.onMsgPosition(onMsgPosition);
@@ -45,13 +37,7 @@ export const App: React.FunctionComponent = () => {
                 <Workspace />
             </Stack.Item>
             <Stack.Item>
-                <MachineCtrl
-                    units={units}
-                    machineX={machineX}
-                    machineY={machineY}
-                    machineZ={machineZ}
-                    onUnitsChange={onUnitsChange}
-                />
+                <MachineCtrl units={units} machinePos={machinePos} onUnitsChange={onUnitsChange} />
             </Stack.Item>
         </Stack>
     );

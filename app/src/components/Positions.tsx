@@ -1,12 +1,11 @@
 import React from "react";
 
+import { Coord } from "../util/Coord";
 import { Position } from "./Position";
 
 export interface Props {
     units: string;
-    machineX: number;
-    machineY: number;
-    machineZ: number;
+    machinePos: Coord;
 }
 
 export const Positions: React.FunctionComponent<Props> = props => {
@@ -21,7 +20,7 @@ export const Positions: React.FunctionComponent<Props> = props => {
             <tr>
                 <td style={{ textAlign: "center", ...style }}>X</td>
                 <td style={style}>
-                    <Position units={props.units} value={props.machineX} />
+                    <Position units={props.units} value={props.machinePos.X} />
                 </td>
                 <td style={style}>
                     <Position units={props.units} value={0.0} />
@@ -30,7 +29,7 @@ export const Positions: React.FunctionComponent<Props> = props => {
             <tr>
                 <td style={{ textAlign: "center", ...style }}>Y</td>
                 <td style={style}>
-                    <Position units={props.units} value={props.machineY} />
+                    <Position units={props.units} value={props.machinePos.Y} />
                 </td>
                 <td style={style}>
                     <Position units={props.units} value={0.0} />
@@ -39,7 +38,7 @@ export const Positions: React.FunctionComponent<Props> = props => {
             <tr>
                 <td style={{ textAlign: "center", ...style }}>Z</td>
                 <td style={style}>
-                    <Position units={props.units} value={props.machineZ} />
+                    <Position units={props.units} value={props.machinePos.Z} />
                 </td>
                 <td style={style}>
                     <Position units={props.units} value={0.0} />
