@@ -2,9 +2,6 @@ package main
 
 /*
 
-UI:
-- change App to a class rather than a function
-
 Manager:
 - Shared state which multiple UIs can access: use go routines and channels
 - add mode: whether the machine is running gcode or not

@@ -1,5 +1,5 @@
 import { initializeIcons } from "@uifabric/icons";
-import React, { useState } from "react";
+import React from "react";
 import { Stack } from "office-ui-fabric-react";
 
 import { Coord } from "./util/Coord";
@@ -10,45 +10,65 @@ import { Workspace } from "./components/Workspace";
 //CtrlWebSocket.init("ws://" + window.location.host + "/control");
 CtrlWebSocket.init("ws://localhost:8241/control");
 
-export const App: React.FunctionComponent = () => {
-    const [machinePos, setMachinePos] = useState(new Coord(0.0, 0.0, 0.0));
-    const [units, setUnits] = useState("in");
-    const [connected, setConnected] = useState(false);
+export interface Props {}
+export interface State {
+    machinePos: Coord;
+    units: string;
+    connected: boolean;
+}
 
-    const onUnitsChange = (u: string) => {
-        if (u !== units) {
-            setUnits(u);
+export class App extends React.Component<Props, State> {
+    state: State = {
+        machinePos: new Coord(0.0, 0.0, 0.0),
+        units: "in",
+        connected: false
+    };
+
+    componentDidMount() {
+        CtrlWebSocket.onMsgPosition((msg: MsgPosition) => {
+            this.setState({ machinePos: new Coord(msg.MachineX, msg.MachineY, msg.MachineZ) });
+        });
+
+        CtrlWebSocket.onReadyState((open: boolean) => {
+            this.setState({ connected: open });
+        });
+    }
+
+    onUnitsChange: (u: string) => void = u => {
+        if (u !== this.state.units) {
             if (u === "mm") {
-                setMachinePos(machinePos.map(n => n * 25.4));
+                this.setState({
+                    units: u,
+                    machinePos: this.state.machinePos.map(n => n * 25.4)
+                });
             } else {
-                setMachinePos(machinePos.map(n => n / 25.4));
+                this.setState({
+                    units: u,
+                    machinePos: this.state.machinePos.map(n => n / 25.4)
+                });
             }
         }
     };
 
-    const onMsgPosition = (msg: MsgPosition) => {
-        setMachinePos(new Coord(msg.MachineX, msg.MachineY, msg.MachineZ));
-    };
-    CtrlWebSocket.onMsgPosition(onMsgPosition);
-
-    const onReadyState = (open: boolean) => {
-        setConnected(open);
-    };
-    CtrlWebSocket.onReadyState(onReadyState);
-
-    return (
-        <Stack horizontal style={{ height: "100%" }}>
-            <Stack.Item grow>
-                <Stack>
-                    {connected ? "Connected" : "Disconnected"}
-                    <Workspace />
-                </Stack>
-            </Stack.Item>
-            <Stack.Item>
-                <MachineCtrl units={units} machinePos={machinePos} onUnitsChange={onUnitsChange} />
-            </Stack.Item>
-        </Stack>
-    );
-};
+    render() {
+        return (
+            <Stack horizontal style={{ height: "100%" }}>
+                <Stack.Item grow>
+                    <Stack>
+                        {this.state.connected ? "Connected" : "Disconnected"}
+                        <Workspace />
+                    </Stack>
+                </Stack.Item>
+                <Stack.Item>
+                    <MachineCtrl
+                        units={this.state.units}
+                        machinePos={this.state.machinePos}
+                        onUnitsChange={this.onUnitsChange}
+                    />
+                </Stack.Item>
+            </Stack>
+        );
+    }
+}
 
 initializeIcons();
