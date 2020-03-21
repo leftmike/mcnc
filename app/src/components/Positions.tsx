@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Position } from "./Position";
 
 export interface Props {

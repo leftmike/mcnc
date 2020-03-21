@@ -3,23 +3,15 @@ import { ChoiceGroup, IChoiceGroupOption } from "office-ui-fabric-react/lib/Choi
 import { ComboBox, IComboBoxOption } from "office-ui-fabric-react/lib/index";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 
+import { CtrlWebSocket } from "../util/CtrlWebSocket";
+
 const unitsOptions: IChoiceGroupOption[] = [
     { key: "mm", text: "mm" },
     { key: "in", text: "in" }
 ];
 
-/*
-export const ChoiceGroupBasicExample: React.FunctionComponent = () => {
-};
-
-function _onChange(ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void {
-  console.dir(option);
-}
-*/
-
 export interface Props {
     units: string;
-    onDeltaClick: (deltaX: number, deltaY: number, deltaZ: number) => void;
     onUnitsChange: (units: string) => void;
 }
 
@@ -38,6 +30,14 @@ const inStepOptions: IComboBoxOption[] = [
     { key: "0.01", text: "0.01" },
     { key: "0.001", text: "0.001" }
 ];
+
+const deltaClick = (deltaX: number, deltaY: number, deltaZ: number) => {
+    CtrlWebSocket.sendMsgDelta({
+        DeltaX: deltaX,
+        DeltaY: deltaY,
+        DeltaZ: deltaZ
+    });
+};
 
 export const PositionCtrl: React.FunctionComponent<Props> = props => {
     let stepOptions: IComboBoxOption[];
@@ -67,28 +67,28 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(-90deg)" } }}
                             title="-X +Y"
-                            onClick={() => props.onDeltaClick(-1 * step, 1 * step, 0)}
+                            onClick={() => deltaClick(-1 * step, 1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Up" }}
                             title="+Y"
-                            onClick={() => props.onDeltaClick(0, 1 * step, 0)}
+                            onClick={() => deltaClick(0, 1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "ArrowUpRight" }}
                             title="+X +Y"
-                            onClick={() => props.onDeltaClick(1 * step, 1 * step, 0)}
+                            onClick={() => deltaClick(1 * step, 1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Up" }}
                             title="+Z"
-                            onClick={() => props.onDeltaClick(0, 0, 1 * step)}
+                            onClick={() => deltaClick(0, 0, 1 * step)}
                         />
                     </td>
                 </tr>
@@ -97,7 +97,7 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                         <IconButton
                             iconProps={{ iconName: "Back" }}
                             title="-X"
-                            onClick={() => props.onDeltaClick(-1 * step, 0, 0)}
+                            onClick={() => deltaClick(-1 * step, 0, 0)}
                         />
                     </td>
                     <td style={{ textAlign: "center", ...style }}>XY</td>
@@ -105,7 +105,7 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                         <IconButton
                             iconProps={{ iconName: "Forward" }}
                             title="+X"
-                            onClick={() => props.onDeltaClick(1 * step, 0, 0)}
+                            onClick={() => deltaClick(1 * step, 0, 0)}
                         />
                     </td>
                     <td style={{ textAlign: "center", ...style }}>Z</td>
@@ -116,14 +116,14 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(180deg)" } }}
                             title="-X -Y"
-                            onClick={() => props.onDeltaClick(-1 * step, -1 * step, 0)}
+                            onClick={() => deltaClick(-1 * step, -1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Down" }}
                             title="-Y"
-                            onClick={() => props.onDeltaClick(0, -1 * step, 0)}
+                            onClick={() => deltaClick(0, -1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
@@ -131,14 +131,14 @@ export const PositionCtrl: React.FunctionComponent<Props> = props => {
                             iconProps={{ iconName: "ArrowUpRight" }}
                             styles={{ root: { transform: "rotate(90deg)" } }}
                             title="+X -Y"
-                            onClick={() => props.onDeltaClick(1 * step, -1 * step, 0)}
+                            onClick={() => deltaClick(1 * step, -1 * step, 0)}
                         />
                     </td>
                     <td style={style}>
                         <IconButton
                             iconProps={{ iconName: "Down" }}
                             title="-Z"
-                            onClick={() => props.onDeltaClick(0, 0, -1 * step)}
+                            onClick={() => deltaClick(0, 0, -1 * step)}
                         />
                     </td>
                 </tr>

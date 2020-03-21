@@ -15,19 +15,6 @@ export const App: React.FunctionComponent = () => {
     const [machineZ, setMachineZ] = useState(0.0);
     const [units, setUnits] = useState("in");
 
-    const onDeltaClick = function(deltaX: number, deltaY: number, deltaZ: number) {
-        CtrlWebSocket.sendMsgDelta({
-            DeltaX: deltaX,
-            DeltaY: deltaY,
-            DeltaZ: deltaZ
-        });
-        /*
-        setMachineX(machineX + deltaX);
-        setMachineY(machineY + deltaY);
-        setMachineZ(machineZ + deltaZ);
-        */
-    };
-
     const onUnitsChange = function(u: string) {
         if (u !== units) {
             setUnits(u);
@@ -63,7 +50,6 @@ export const App: React.FunctionComponent = () => {
                     machineX={machineX}
                     machineY={machineY}
                     machineZ={machineZ}
-                    onDeltaClick={onDeltaClick}
                     onUnitsChange={onUnitsChange}
                 />
             </Stack.Item>

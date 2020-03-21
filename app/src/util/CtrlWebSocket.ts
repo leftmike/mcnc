@@ -21,6 +21,10 @@ class ctrlWebSocket {
 
     public init(url: string) {
         this.url = url;
+        this.setup();
+    }
+
+    private setup() {
         this.ws = new WebSocket(this.url);
         this.ws.onmessage = event => {
             const buf = event.data;
@@ -30,6 +34,18 @@ class ctrlWebSocket {
                 this.handlers[tag](JSON.parse(buf.slice(idx + 1)));
             }
         };
+        this.ws.onclose = () => {
+            this.ws = undefined;
+            setTimeout(() => {
+                this.setup();
+            }, 1000);
+        };
+        this.ws.onerror = () => {
+            if (this.ws) {
+                this.ws.close();
+            }
+            this.ws = undefined;
+        };
     }
 
     public sendMsgDelta(msg: MsgDelta) {
@@ -37,7 +53,7 @@ class ctrlWebSocket {
     }
 
     private send(tag: string, msg: object) {
-        if (this.ws) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(tag + TagSeparator + JSON.stringify(msg));
         }
     }
