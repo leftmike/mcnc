@@ -40,8 +40,8 @@ const inStepOptions: IComboBoxOption[] = [
 ];
 
 export const PositionCtrl: React.FunctionComponent<Props> = props => {
-    var stepOptions: IComboBoxOption[];
-    var stepDefault: string;
+    let stepOptions: IComboBoxOption[];
+    let stepDefault: string;
     if (props.units === "mm") {
         stepOptions = mmStepOptions;
         stepDefault = mmStepDefault;

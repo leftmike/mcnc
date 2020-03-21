@@ -7,7 +7,7 @@ export interface MsgDelta {
     DeltaZ: number;
 }
 
-//const MsgPositionTag = "position";
+const MsgPositionTag = "position";
 export interface MsgPosition {
     MachineX: number;
     MachineY: number;
@@ -17,10 +17,19 @@ export interface MsgPosition {
 class ctrlWebSocket {
     private url: string = "";
     private ws: WebSocket | undefined = undefined;
+    private handlers: any = {};
 
     public init(url: string) {
         this.url = url;
         this.ws = new WebSocket(this.url);
+        this.ws.onmessage = event => {
+            const buf = event.data;
+            const idx = buf.indexOf(TagSeparator);
+            const tag = buf.slice(0, idx);
+            if (tag in this.handlers) {
+                this.handlers[tag](JSON.parse(buf.slice(idx + 1)));
+            }
+        };
     }
 
     public sendMsgDelta(msg: MsgDelta) {
@@ -33,31 +42,9 @@ class ctrlWebSocket {
         }
     }
 
-    //private onMsgPositionHandler: (msg: MsgPosition) => void = () => {};
     public onMsgPosition(handler: (msg: MsgPosition) => void) {
-        //this.onMsgPositionHandler = handler;
-        if (this.ws) {
-            this.ws.onmessage = event => {
-                const buf = event.data;
-                const idx = buf.indexOf(TagSeparator);
-                // buf.slice(0, idx) === MsgPositionTag
-                handler(JSON.parse(buf.slice(idx + 1)));
-            };
-        }
+        this.handlers[MsgPositionTag] = handler;
     }
-    /*
-    private onMessage(event) {
-        event.data
-    }
-
-    onReceive(handler: (msg: ReceiveMsg) => void) {
-        if (this.ws) {
-            this.ws.onmessage = event => {
-                handler(JSON.parse(event.data));
-            };
-        }
-    }
-*/
 }
 
 export const CtrlWebSocket = new ctrlWebSocket();
