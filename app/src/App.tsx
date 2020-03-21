@@ -1,8 +1,13 @@
+import { initializeIcons } from "@uifabric/icons";
 import React, { useState } from "react";
 import { Stack } from "office-ui-fabric-react";
+
+import { CtrlWebSocket, MsgPosition } from "./util/CtrlWebSocket";
 import { MachineCtrl } from "./components/MachineCtrl";
 import { Workspace } from "./components/Workspace";
-import { initializeIcons } from "@uifabric/icons";
+
+//CtrlWebSocket.init("ws://" + window.location.host + "/control");
+CtrlWebSocket.init("ws://localhost:8241/control");
 
 export const App: React.FunctionComponent = () => {
     const [machineX, setMachineX] = useState(0.0);
@@ -11,9 +16,16 @@ export const App: React.FunctionComponent = () => {
     const [units, setUnits] = useState("in");
 
     const onDeltaClick = function(deltaX: number, deltaY: number, deltaZ: number) {
+        CtrlWebSocket.sendMsgDelta({
+            DeltaX: deltaX,
+            DeltaY: deltaY,
+            DeltaZ: deltaZ
+        });
+        /*
         setMachineX(machineX + deltaX);
         setMachineY(machineY + deltaY);
         setMachineZ(machineZ + deltaZ);
+        */
     };
 
     const onUnitsChange = function(u: string) {
@@ -30,6 +42,15 @@ export const App: React.FunctionComponent = () => {
             }
         }
     };
+
+    // public onMsgPosition(handler: (msg: MsgPosition) => void)
+    const onMsgPosition = function(msg: MsgPosition) {
+        setMachineX(msg.MachineX);
+        setMachineY(msg.MachineY);
+        setMachineZ(msg.MachineZ);
+    };
+
+    CtrlWebSocket.onMsgPosition(onMsgPosition);
 
     return (
         <Stack horizontal style={{ height: "100%" }}>

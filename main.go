@@ -2,7 +2,13 @@ package main
 
 /*
 
-- set cache control
+UI:
+- indication whether /control is connected or not
+- reconnect /control if necessary
+
+Manager:
+- Shared state which multiple UIs can access: use go routines and channels
+- add mode: whether the machine is running gcode or not
 
 */
 
@@ -18,6 +24,7 @@ func main() {
 	fmt.Println("mCNC")
 
 	flag.Parse()
+	setupControlServer()
 	setupFileServer()
 
 	log.Fatal(http.ListenAndServe("localhost:8241", nil))
