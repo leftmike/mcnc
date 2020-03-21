@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -32,6 +33,20 @@ type msgPosition struct {
 	MachineZ float64
 }
 
+func sendMsgPosition(c *websocket.Conn, machineX, machineY, machineZ float64) error {
+	msg := msgPosition{machineX, machineY, machineZ}
+	buf, err := json.Marshal(msg)
+	if err != nil {
+		return fmt.Errorf("marshal: %s", err)
+	}
+
+	buf = bytes.Join([][]byte{msgPositionTag, buf}, tagSeparator)
+	if err := c.WriteMessage(websocket.TextMessage, buf); err != nil {
+		return fmt.Errorf("write message: %s", err)
+	}
+	return nil
+}
+
 func controlHandler(w http.ResponseWriter, req *http.Request) {
 	log.Println("/control")
 
@@ -54,6 +69,12 @@ func controlHandler(w http.ResponseWriter, req *http.Request) {
 	var machineX, machineY, machineZ float64
 
 	for {
+		err := sendMsgPosition(c, machineX, machineY, machineZ)
+		if err != nil {
+			log.Printf("sendMsgPosition: %s", err)
+			return
+		}
+
 		mtyp, buf, err := c.ReadMessage()
 		if err != nil {
 			log.Printf("ReadMessage: %s", err)
@@ -78,19 +99,6 @@ func controlHandler(w http.ResponseWriter, req *http.Request) {
 			machineZ += delta.DeltaZ
 		} else {
 			log.Printf("unexpected message type: %s", string(fields[0]))
-			return
-		}
-
-		msg := msgPosition{machineX, machineY, machineZ}
-		buf, err = json.Marshal(msg)
-		if err != nil {
-			log.Printf("Marshal: %s", err)
-			return
-		}
-
-		buf = bytes.Join([][]byte{msgPositionTag, buf}, tagSeparator)
-		if err := c.WriteMessage(websocket.TextMessage, buf); err != nil {
-			log.Printf("WriteMessage: %s", err)
 			return
 		}
 	}

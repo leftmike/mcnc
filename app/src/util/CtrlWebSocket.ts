@@ -18,10 +18,15 @@ class ctrlWebSocket {
     private url: string = "";
     private ws: WebSocket | undefined = undefined;
     private handlers: any = {};
+    private readyStateHandler: ((open: boolean) => void) | undefined = undefined;
 
     public init(url: string) {
         this.url = url;
-        this.setup();
+        if (this.ws) {
+            this.ws.close();
+        } else {
+            this.setup();
+        }
     }
 
     private setup() {
@@ -34,7 +39,15 @@ class ctrlWebSocket {
                 this.handlers[tag](JSON.parse(buf.slice(idx + 1)));
             }
         };
+        this.ws.onopen = () => {
+            if (this.readyStateHandler) {
+                this.readyStateHandler(true);
+            }
+        };
         this.ws.onclose = () => {
+            if (this.readyStateHandler) {
+                this.readyStateHandler(false);
+            }
             this.ws = undefined;
             setTimeout(() => {
                 this.setup();
@@ -46,6 +59,13 @@ class ctrlWebSocket {
             }
             this.ws = undefined;
         };
+    }
+
+    public onReadyState(handler: (open: boolean) => void) {
+        if (!this.readyStateHandler) {
+            handler(this.ws !== undefined && this.ws.readyState === WebSocket.OPEN);
+        }
+        this.readyStateHandler = handler;
     }
 
     public sendMsgDelta(msg: MsgDelta) {

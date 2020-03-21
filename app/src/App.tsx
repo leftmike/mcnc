@@ -13,6 +13,7 @@ CtrlWebSocket.init("ws://localhost:8241/control");
 export const App: React.FunctionComponent = () => {
     const [machinePos, setMachinePos] = useState(new Coord(0.0, 0.0, 0.0));
     const [units, setUnits] = useState("in");
+    const [connected, setConnected] = useState(false);
 
     const onUnitsChange = (u: string) => {
         if (u !== units) {
@@ -28,13 +29,20 @@ export const App: React.FunctionComponent = () => {
     const onMsgPosition = (msg: MsgPosition) => {
         setMachinePos(new Coord(msg.MachineX, msg.MachineY, msg.MachineZ));
     };
-
     CtrlWebSocket.onMsgPosition(onMsgPosition);
+
+    const onReadyState = (open: boolean) => {
+        setConnected(open);
+    };
+    CtrlWebSocket.onReadyState(onReadyState);
 
     return (
         <Stack horizontal style={{ height: "100%" }}>
             <Stack.Item grow>
-                <Workspace />
+                <Stack>
+                    {connected ? "Connected" : "Disconnected"}
+                    <Workspace />
+                </Stack>
             </Stack.Item>
             <Stack.Item>
                 <MachineCtrl units={units} machinePos={machinePos} onUnitsChange={onUnitsChange} />

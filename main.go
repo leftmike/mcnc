@@ -3,9 +3,7 @@ package main
 /*
 
 UI:
-- indication whether /control is connected or not
-- reconnect /control if necessary
-- indicator of connected or not; add events to CtrlWebSocket
+- change App to a class rather than a function
 
 Manager:
 - Shared state which multiple UIs can access: use go routines and channels
