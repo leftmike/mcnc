@@ -1,4 +1,4 @@
-module github.com/leftmike/mcnc
+module github.com/leftmike/mightyg
 
 go 1.14
 

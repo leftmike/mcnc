@@ -11,7 +11,7 @@ import (
 
 	statikfs "github.com/rakyll/statik/fs"
 
-	_ "github.com/leftmike/mcnc/appdata"
+	_ "github.com/leftmike/mightyg/appdata"
 )
 
 var (

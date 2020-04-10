@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	fmt.Println("mCNC")
+	fmt.Println("MightyG")
 
 	flag.Parse()
 	setupControlServer()
